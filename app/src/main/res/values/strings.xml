@@ -1,3 +1,21 @@
 <resources>
-    <string name="app_name">retrofit</string>
+    <string name="app_name">Pokedex</string>
+    <string name="no_internet_cached_data">No internet connection — showing cached data</string>
+    <string name="online">Online</string>
+    <string name="search_pokemon">Search Pokémon…</string>
+    <string name="showing_x_pokemon">Showing %d pokémon</string>
+    <string name="height">Height</string>
+    <string name="weight">Weight</string>
+    <string name="base_stats">Base Stats</string>
+    <string name="hp">HP</string>
+    <string name="attack">Attack</string>
+    <string name="defense">Defense</string>
+    <string name="special_attack">Sp. Atk</string>
+    <string name="special_defense">Sp. Def</string>
+    <string name="speed">Speed</string>
+    <string name="retry">Retry</string>
+    <string name="shiny">Shiny</string>
+    <string name="back">Back</string>
+    <string name="loading">Loading…</string>
+    <string name="error_occurred">An error occurred</string>
 </resources>
