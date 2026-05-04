@@ -1,4 +1,4 @@
-package com.example.pokedex.feature
+package com.example.pokedex.feature.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

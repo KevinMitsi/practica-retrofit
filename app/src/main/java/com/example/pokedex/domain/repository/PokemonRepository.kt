@@ -11,6 +11,4 @@ interface PokemonRepository {
     suspend fun searchPokemon(query: String): List<Pokemon>
     suspend fun getPokemonByType(typeName: String): List<Pokemon>
     fun observeConnectivity(): Flow<Boolean>
-
-    suspend fun getPokemonById(id: Int): Pokemon?
 }

@@ -7,7 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.pokedex.feature.PokemonDetailScreen
+import com.example.pokedex.feature.detail.PokemonDetailScreen
 import com.example.pokedex.ui.list.PokemonListScreen
 
 sealed class Screen(val route: String) {

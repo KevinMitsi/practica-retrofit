@@ -1,4 +1,4 @@
-package com.example.pokedex.feature
+package com.example.pokedex.feature.detail
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -222,7 +223,7 @@ fun StatRow(stat: Stat) {
                 .height(8.dp),
             color = if (stat.value > 100) Color.Green else if (stat.value > 50) Color.Yellow else Color.Red,
             trackColor = Color.LightGray.copy(alpha = 0.3f),
-            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+            strokeCap = StrokeCap.Round
         )
     }
 }
