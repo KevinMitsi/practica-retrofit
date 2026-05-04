@@ -63,6 +63,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    // Material
+    implementation(libs.material)
+
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
