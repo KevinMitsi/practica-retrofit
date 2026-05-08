@@ -39,4 +39,10 @@ interface PokemonDao {
     
     @Query("SELECT * FROM pokemon_list WHERE name LIKE :query")
     suspend fun searchPokemon(query: String): List<PokemonEntity>
+
+    @Query("SELECT COUNT(*) FROM pokemon_list")
+    suspend fun getPokemonCount(): Int
+
+    @Query("SELECT * FROM pokemon_detail")
+    suspend fun getAllCachedDetails(): List<PokemonDetailEntity>
 }

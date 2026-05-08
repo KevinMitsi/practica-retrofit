@@ -1,5 +1,6 @@
 package com.example.pokedex.di
 
+import com.example.pokedex.BuildConfig
 import com.example.pokedex.data.remote.api.PokeApiService
 import dagger.Module
 import dagger.Provides
@@ -19,7 +20,8 @@ object NetworkModule {
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+                    else HttpLoggingInterceptor.Level.NONE
         }
     }
 

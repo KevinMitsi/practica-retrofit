@@ -19,6 +19,14 @@ class PokemonRemoteMediator(
     private val database: AppDatabase
 ) : RemoteMediator<Int, PokemonEntity>() {
 
+    override suspend fun initialize(): RemoteMediator.InitializeAction {
+        return if (database.pokemonDao().getPokemonCount() > 0) {
+            RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+        } else {
+            RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+    }
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, PokemonEntity>
@@ -67,6 +75,8 @@ class PokemonRemoteMediator(
         } catch (exception: IOException) {
             return MediatorResult.Error(exception)
         } catch (exception: HttpException) {
+            return MediatorResult.Error(exception)
+        } catch (exception: Exception) {
             return MediatorResult.Error(exception)
         }
     }
