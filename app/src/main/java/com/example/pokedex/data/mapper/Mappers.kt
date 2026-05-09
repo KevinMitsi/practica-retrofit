@@ -43,6 +43,16 @@ fun PokemonDetailDto.toEntity(): PokemonDetailEntity {
     )
 }
 
+fun PokemonDetailEntity.toPokemon(): Pokemon {
+    return Pokemon(
+        id = id,
+        name = name,
+        url = "https://pokeapi.co/api/v2/pokemon/$id/",
+        spriteUrl = spriteUrl,
+        types = types
+    )
+}
+
 fun PokemonDetailEntity.toDomain(): PokemonDetail {
     return PokemonDetail(
         id = id,

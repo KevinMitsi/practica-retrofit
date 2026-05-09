@@ -55,8 +55,13 @@ fun PokemonListScreen(
             }
         }
 
-        val totalCount = if (filteredPokemonList != null) {
-            filteredPokemonList?.size ?: 0
+        // Capturar el valor del estado en una variable local antes de entrar al lambda de LazyVerticalGrid.
+        // Si se lee el estado delegado (filteredPokemonList) dentro del lambda lazy, Compose lo invalida
+        // cuando cambia a null ANTES de recomponer el if externo, produciendo NPE en filteredPokemonList!!
+        val currentFilteredList = filteredPokemonList
+
+        val totalCount = if (currentFilteredList != null) {
+            currentFilteredList.size
         } else {
             pagingItems.itemCount
         }
@@ -68,14 +73,14 @@ fun PokemonListScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        if (filteredPokemonList != null) {
+        if (currentFilteredList != null) {
             // Show filtered results (Search or Type filter)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(8.dp)
             ) {
-                items(filteredPokemonList!!) { pokemon ->
+                items(currentFilteredList) { pokemon ->
                     PokemonCard(
                         pokemon = pokemon,
                         onClick = { onPokemonClick(pokemon.name) }

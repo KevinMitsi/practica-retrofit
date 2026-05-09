@@ -9,6 +9,8 @@ import androidx.paging.*
 import com.example.pokedex.data.local.db.AppDatabase
 import com.example.pokedex.data.mapper.toDomain
 import com.example.pokedex.data.mapper.toEntity
+import com.example.pokedex.data.mapper.toPokemon
+import kotlinx.coroutines.CancellationException
 import com.example.pokedex.data.remote.PokemonRemoteMediator
 import com.example.pokedex.data.remote.api.PokeApiService
 import com.example.pokedex.domain.model.Pokemon
@@ -47,21 +49,22 @@ class PokemonRepositoryImpl @Inject constructor(
                 database.pokemonDao().insertDetail(entity)
                 Result.success(entity.toDomain())
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
     override suspend fun searchPokemon(query: String): List<Pokemon> {
-        // As per requirement #4, name-search uses endpoint #4 and local filtering.
-        // However, the DAO also has a search method. To follow requirement strictly:
         return try {
             val allPokemon = apiService.getAllPokemonNames().results
             allPokemon
                 .filter { it.name.contains(query, ignoreCase = true) }
                 .map { it.toEntity(0).toDomain() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            // Fallback to local search if offline
             database.pokemonDao().searchPokemon("%$query%").map { it.toDomain() }
         }
     }
@@ -70,8 +73,12 @@ class PokemonRepositoryImpl @Inject constructor(
         return try {
             val typeResponse = apiService.getPokemonByType(typeName)
             typeResponse.pokemon.map { it.pokemon.toEntity(0).toDomain() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            emptyList()
+            database.pokemonDao().getAllCachedDetails()
+                .filter { typeName in it.types }
+                .map { it.toPokemon() }
         }
     }
 

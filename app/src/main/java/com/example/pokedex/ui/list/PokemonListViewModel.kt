@@ -9,12 +9,13 @@ import com.example.pokedex.domain.usecase.FilterByTypeUseCase
 import com.example.pokedex.domain.usecase.GetPokemonListUseCase
 import com.example.pokedex.domain.usecase.SearchPokemonUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(FlowPreview::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PokemonListViewModel @Inject constructor(
     private val getPokemonListUseCase: GetPokemonListUseCase,
@@ -28,9 +29,6 @@ class PokemonListViewModel @Inject constructor(
     private val _selectedType = MutableStateFlow<String?>(null)
     val selectedType: StateFlow<String?> = _selectedType.asStateFlow()
 
-    private val _filteredPokemonList = MutableStateFlow<List<Pokemon>?>(null)
-    val filteredPokemonList: StateFlow<List<Pokemon>?> = _filteredPokemonList.asStateFlow()
-
     val pokemonPagingData: Flow<PagingData<Pokemon>> = getPokemonListUseCase()
         .cachedIn(viewModelScope)
 
@@ -40,13 +38,37 @@ class PokemonListViewModel @Inject constructor(
         "dragon", "steel", "fairy", "dark"
     )
 
-    init {
-        combine(_searchQuery.debounce(300), _selectedType) { query, type ->
+    val filteredPokemonList: StateFlow<List<Pokemon>?> =
+        combine(_searchQuery, _selectedType) { query, type ->
             Pair(query, type)
-        }.onEach { (query, type) ->
-            updateFilteredList(query, type)
-        }.launchIn(viewModelScope)
-    }
+        }.flatMapLatest { (query, type) ->
+            flow {
+                if (query.isEmpty() && type == null) {
+                    emit(null)
+                } else {
+                    // Solo debounce al buscar por texto sin filtro de tipo activo
+                    if (query.isNotEmpty() && type == null) {
+                        delay(300L)
+                    }
+                    try {
+                        val results = if (type != null) {
+                            filterByTypeUseCase(type).filter { it.name.contains(query, ignoreCase = true) }
+                        } else {
+                            searchPokemonUseCase(query)
+                        }
+                        emit(results)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        emit(emptyList())
+                    }
+                }
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
@@ -54,21 +76,5 @@ class PokemonListViewModel @Inject constructor(
 
     fun onTypeSelect(type: String) {
         _selectedType.value = if (_selectedType.value == type) null else type
-    }
-
-    private fun updateFilteredList(query: String, type: String?) {
-        viewModelScope.launch {
-            if (query.isEmpty() && type == null) {
-                _filteredPokemonList.value = null
-                return@launch
-            }
-
-            val results = if (type != null) {
-                filterByTypeUseCase(type).filter { it.name.contains(query, ignoreCase = true) }
-            } else {
-                searchPokemonUseCase(query)
-            }
-            _filteredPokemonList.value = results
-        }
     }
 }
